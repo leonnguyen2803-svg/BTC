@@ -11,14 +11,19 @@ btc_usd = requests.get(
     timeout=10
 ).json()["bitcoin"]["usd"]
 
-btc_buy = 63200
-
+btc_buy_usd = 63200
 btc_vnd_rate = 25000
 
 btc_vnd = btc_usd * btc_vnd_rate
-btc_buy_vnd = btc_buy * btc_vnd_rate
 
-btc_profit = ((btc_usd - btc_buy) / btc_buy) * 100
+btc_invest_vnd = 10_000_000
+
+btc_buy_vnd = btc_buy_usd * btc_vnd_rate
+
+btc_value_now_vnd = (btc_invest_vnd / btc_buy_vnd) * btc_vnd
+
+btc_profit_pct = ((btc_usd - btc_buy_usd) / btc_buy_usd) * 100
+btc_profit_vnd = btc_value_now_vnd - btc_invest_vnd
 
 # ================= GOLD =================
 try:
@@ -40,25 +45,22 @@ try:
 except:
     gold_price = None
 
-gold_buy = 17300000
+gold_buy = 17_300_000
 
 if gold_price:
-    gold_profit = ((gold_price - gold_buy) / gold_buy) * 100
+    gold_profit_pct = ((gold_price - gold_buy) / gold_buy) * 100
+    gold_profit_vnd = gold_price - gold_buy
 else:
-    gold_profit = None
+    gold_profit_pct = None
+    gold_profit_vnd = None
 
-# ================= FORMAT =================
-btc_sign = "🟢" if btc_profit >= 0 else "🔴"
-gold_sign = "🟢" if gold_profit and gold_profit >= 0 else "🔴"
+# ================= OUTPUT =================
+message = f"""BTC: {btc_usd:,.0f} USD
+BTC: {btc_vnd:,.0f} VND
+BTC P/L: {btc_profit_pct:+.2f}% ({btc_profit_vnd:+,.0f} VND)
 
-message = f"""📊 MARKET REPORT
-
-₿ BTC: ${btc_usd:,.0f}
-₿ BTC: {btc_vnd:,.0f} VND
-{btc_sign} BTC P/L: {btc_profit:+.2f}%
-
-🥇 Nhẫn vàng trơn 1 chỉ: {gold_price or 'N/A'} VND
-{gold_sign} GOLD P/L: {gold_profit:+.2f}% if gold_profit is not None else 'N/A'
+Nhẫn vàng trơn 1 chỉ: {gold_price if gold_price else 'N/A'} VND
+GOLD P/L: {gold_profit_pct:+.2f}% ({gold_profit_vnd:+,.0f} VND) if gold_profit_pct is not None else 'N/A'
 """
 
 requests.post(
