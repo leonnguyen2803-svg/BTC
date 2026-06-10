@@ -16,7 +16,7 @@ btc_vnd_rate = 25000
 
 btc_vnd = btc_usd * btc_vnd_rate
 
-btc_invest_vnd = 10_000_000
+btc_invest_vnd = 100_000_000
 
 btc_buy_vnd = btc_buy_usd * btc_vnd_rate
 
@@ -45,7 +45,7 @@ try:
 except:
     gold_price = None
 
-gold_buy = 17_300_000
+gold_buy = 17_300_000 * 20
 
 if gold_price:
     gold_profit_pct = ((gold_price - gold_buy) / gold_buy) * 100
@@ -60,7 +60,7 @@ BTC: {btc_vnd:,.0f} VND
 BTC P/L: {btc_profit_pct:+.2f}% ({btc_profit_vnd:+,.0f} VND)
 
 Nhẫn vàng trơn 1 chỉ: {gold_price if gold_price else 'N/A'} VND
-GOLD P/L: {gold_profit_pct:+.2f}% ({gold_profit_vnd:+,.0f} VND) if gold_profit_pct is not None else 'N/A'
+GOLD P/L: {gold_profit_pct:+.2f}% ({gold_profit_vnd:+,.0f} VND) 
 """
 
 requests.post(
