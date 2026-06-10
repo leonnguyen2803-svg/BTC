@@ -4,19 +4,18 @@ from bs4 import BeautifulSoup
 
 WEBHOOK = os.environ["DISCORD_WEBHOOK"]
 
+headers = {"User-Agent": "Mozilla/5.0"}
+
 # ================= BTC =================
 btc = requests.get(
     "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
     timeout=10
 ).json()["bitcoin"]["usd"]
 
-vnd_rate = 25000
-btc_vnd = btc * vnd_rate
+btc_vnd = btc * 25000
 
 # ================= GOLD =================
 gold_url = "https://ngoctham.com/bang-gia-vang/"
-headers = {"User-Agent": "Mozilla/5.0"}
-
 res = requests.get(gold_url, headers=headers, timeout=10)
 soup = BeautifulSoup(res.text, "html.parser")
 
@@ -25,29 +24,33 @@ gold_price = None
 for row in soup.select("table tr"):
     cols = row.find_all("td")
     if len(cols) >= 3:
-        name = cols[0].get_text(strip=True)
-        price = cols[2].get_text(strip=True)
-
-        if "Nhẫn 999.9" in name:
-            gold_price = price
+        if "Nhẫn 999.9" in cols[0].get_text():
+            gold_price = cols[2].get_text(strip=True)
             break
 
-# ================= FPT (FireAnt API) =================
+# ================= FPT (FireAnt FIXED) =================
 def get_fpt():
-    try:
-        url = "https://fireant.vn/api/Data/Markets/Quotes?symbols=FPT"
-        r = requests.get(url, timeout=5)
-        data = r.json()
-        return data["data"][0]["matchPrice"]
-    except:
-        return None
+    urls = [
+        "https://svr1.fireant.vn/api/Data/Markets/Quotes?symbols=FPT",
+        "https://fireant.vn/api/Data/Markets/Quotes?symbols=FPT"
+    ]
 
-fpt_price = get_fpt()
+    for url in urls:
+        try:
+            r = requests.get(url, headers=headers, timeout=5)
+            data = r.json()
+            return data["data"][0]["matchPrice"]
+        except:
+            pass
+
+    return None
+
+fpt = get_fpt()
 
 # ================= DISCORD EMBED =================
 embed = {
     "title": "📊 MARKET DASHBOARD",
-    "color": 0x00b894,
+    "color": 0x3498db,
     "fields": [
         {
             "name": "₿ BTC (USD)",
@@ -66,7 +69,7 @@ embed = {
         },
         {
             "name": "📈 FPT",
-            "value": f"{fpt_price} VND" if fpt_price else "N/A",
+            "value": f"{fpt} VND" if fpt else "N/A",
             "inline": False
         }
     ]
