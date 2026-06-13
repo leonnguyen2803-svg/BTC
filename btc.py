@@ -11,7 +11,7 @@ timeout=10
 btc = response.json()["bitcoin"]["usd"]
 
 message = f"""
-🚀 BTC Hourly Report
+BTC Report
 
 💰 BTC Price: ${btc:,.2f}
 """
